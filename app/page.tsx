@@ -39,7 +39,7 @@ const Home: NextPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-pink-900">
       <Head>
         <title>Staggered Rotating Carousel</title>
         <meta

@@ -2,6 +2,8 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
+import { FaGreaterThan } from "react-icons/fa";
+import { FaLessThan } from "react-icons/fa";
 
 interface CarouselProps {
   slides: {
@@ -19,6 +21,7 @@ const Carousel: React.FC<CarouselProps> = ({
   initialActiveIndex = 2,
 }) => {
   const [activeIndex, setActiveIndex] = useState(initialActiveIndex);
+  const [isMobile, setIsMobile] = useState(false);
   const carouselRef = useRef<HTMLDivElement>(null);
   const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
 
@@ -27,6 +30,22 @@ const Carousel: React.FC<CarouselProps> = ({
     slideRefs.current = slideRefs.current.slice(0, slides.length);
   }, [slides.length]);
 
+  // Check if mobile on mount and when window resizes
+  useEffect(() => {
+    const checkIfMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    // Check initially
+    checkIfMobile();
+
+    // Add event listener for resize
+    window.addEventListener("resize", checkIfMobile);
+
+    // Clean up
+    return () => window.removeEventListener("resize", checkIfMobile);
+  }, []);
+
   // Update carousel when active index changes
   useEffect(() => {
     if (!carouselRef.current) return;
@@ -34,9 +53,9 @@ const Carousel: React.FC<CarouselProps> = ({
     // Clear any existing animations
     gsap.killTweensOf(slideRefs.current.filter(Boolean));
 
-    // Base width of each slide
-    const slideWidth = 250;
-    const slideWithGap = slideWidth + gap;
+    // Base width of each slide - responsive
+    const slideWidth = isMobile ? 120 : 250;
+    const slideWithGap = slideWidth + (isMobile ? gap / 2 : gap);
 
     slides.forEach((_, index) => {
       const slide = slideRefs.current[index];
@@ -63,29 +82,37 @@ const Carousel: React.FC<CarouselProps> = ({
       // Scale - active slide is 100%, others slightly smaller
       const scale = position === 0 ? 1 : 0.9;
 
-      // Calculate x position with gap included
+      // Calculate x position with gap included - responsive
       const x = position * slideWithGap;
 
-      // Calculate y position - first slides go up, last slides go down
-      // Active slide stays centered (y=0)
+      // Calculate y position - responsive
       let y = 0;
       if (position < 0) {
         // Slides before active (left side) move upward
-        y = position * 80; // Negative position gives negative y (upward)
+        y = position * (isMobile ? 40 : 80); // Reduced for mobile
       } else if (position > 0) {
         // Slides after active (right side) move downward
-        y = position * 80; // Positive y is downward
+        y = position * (isMobile ? 40 : 80); // Reduced for mobile
       }
 
-      // Calculate rotation - first slides rotate counterclockwise, last slides rotate clockwise
-      // Active slide has no rotation (0 degrees)
+      // Calculate rotation - responsive
       let rotation = 0;
       if (position < 0) {
-        // Slides before active (left side) rotate counterclockwise (negative angle)
-        rotation = position * 10; // negative position gives negative rotation (counterclockwise)
+        rotation = position * (isMobile ? 5 : 10); // Reduced for mobile
       } else if (position > 0) {
-        // Slides after active (right side) rotate clockwise (positive angle)
-        rotation = position * 10; // positive rotation is clockwise
+        rotation = position * (isMobile ? 5 : 10); // Reduced for mobile
+      }
+
+      // Calculate initial positioning - responsive
+      let initialY = 0;
+      let initialRotation = 0;
+
+      if (position < 0) {
+        initialY = position * (isMobile ? 10 : 20);
+        initialRotation = position * (isMobile ? 3 : 5);
+      } else if (position > 0) {
+        initialY = position * (isMobile ? 10 : 20);
+        initialRotation = position * (isMobile ? 3 : 5);
       }
 
       // Animate the slide to its new position
@@ -100,7 +127,7 @@ const Carousel: React.FC<CarouselProps> = ({
         ease: "power2.out",
       });
     });
-  }, [activeIndex, slides, gap]);
+  }, [activeIndex, slides, gap, isMobile]);
 
   const goToSlide = (index: number) => {
     let targetIndex = index;
@@ -127,79 +154,99 @@ const Carousel: React.FC<CarouselProps> = ({
   };
 
   return (
-    <div className="w-full py-16 relative">
+    <div
+      className={`w-full py-8 md:py-16 relative ${
+        isMobile ? "overflow-hidden" : ""
+      }`}
+    >
       <div
         ref={carouselRef}
-        className="carousel-container relative h-96 mx-auto w-full max-w-5xl overflow-visible"
+        className={`carousel-container relative h-80 md:h-96 mx-auto w-full max-w-5xl ${
+          isMobile ? "overflow-hidden" : ""
+        }`}
       >
-        <div className="slides-container h-full relative">
-          {slides.map((slide, index) => {
-            // Calculate the shortest path position considering wrap-around
-            let position = index - activeIndex;
-            const slideCount = slides.length;
-
-            // Adjust position for better initial rendering
-            if (position > slideCount / 2) {
-              position -= slideCount;
-            } else if (position < -slideCount / 2) {
-              position += slideCount;
-            }
-
-            // Calculate initial positioning
-            let initialY = 0;
-            let initialRotation = 0;
-
-            if (position < 0) {
-              initialY = position * 20;
-              initialRotation = position * 5;
-            } else if (position > 0) {
-              initialY = position * 20;
-              initialRotation = position * 5;
-            }
-
-            return (
-              <div
-                key={slide.id}
-                ref={(el) => (slideRefs.current[index] = el)}
-                className="slide absolute top-0 left-0 right-0 mx-auto w-64 h-[350px] cursor-pointer transition-shadow duration-300 bg-white rounded-lg shadow-lg overflow-hidden"
-                onClick={() => goToSlide(index)}
-                style={{
-                  transform: `translateX(${
-                    position * (250 + gap)
-                  }px) translateY(${initialY}px) rotate(${initialRotation}deg)`,
-                  opacity: index === activeIndex ? 1 : 0.7,
-                  zIndex: 10 - Math.abs(position),
-                  transformOrigin: "center center",
-                }}
-              >
-                <img
-                  src={slide.image}
-                  alt={slide.title}
-                  className="w-full h-64 object-cover"
-                />
-                <div className="p-4 text-center">
-                  <h3 className="font-medium text-gray-800">{slide.title}</h3>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Navigation controls */}
-      <div className="flex justify-center gap-4 mt-8">
+        {/* Navigation controls - responsive for mobile */}
         <button
           onClick={goToPrevSlide}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+          className="absolute left-1 md:left-4 top-1/2 -translate-y-1/2 z-20 px-2 py-2 md:px-5 md:py-5 bg-orange-100 text-2xl text-black rounded-full hover:bg-blue-700 transition-colors opacity-70 hover:opacity-80 shadow-[rgba(0,_0,_0,_0.24)_0px_3px_8px]"
+          aria-label="Previous slide"
         >
-          Previous
+          <FaLessThan />
         </button>
+
         <button
           onClick={goToNextSlide}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+          className="absolute right-1 md:right-4 top-1/2 -translate-y-1/2 z-20 px-2 py-2 md:px-5 md:py-5 bg-orange-100 text-2xl text-black rounded-full hover:bg-blue-700 transition-colors opacity-70 hover:opacity-80 shadow-[rgba(0,_0,_0,_0.24)_0px_3px_8px]"
+          aria-label="Next slide"
         >
-          Next
+          <FaGreaterThan />
         </button>
+
+        {/* Calculate responsive dimensions once outside the map function */}
+        {(() => {
+          const mobileSpacing = isMobile ? 120 : 180;
+          const mobileGap = isMobile ? Math.min(gap / 2, 15) : gap / 2;
+
+          return (
+            <div className="slides-container h-full relative">
+              {slides.map((slide, index) => {
+                // Calculate the shortest path position considering wrap-around
+                let position = index - activeIndex;
+                const slideCount = slides.length;
+
+                // Adjust position for better initial rendering
+                if (position > slideCount / 2) {
+                  position -= slideCount;
+                } else if (position < -slideCount / 2) {
+                  position += slideCount;
+                }
+
+                // Calculate initial positioning - responsive
+                let initialY = 0;
+                let initialRotation = 0;
+
+                if (position < 0) {
+                  initialY = position * (isMobile ? 10 : 20);
+                  initialRotation = position * (isMobile ? 3 : 5);
+                } else if (position > 0) {
+                  initialY = position * (isMobile ? 10 : 20);
+                  initialRotation = position * (isMobile ? 3 : 5);
+                }
+
+                return (
+                  <div
+                    key={slide.id}
+                    ref={(el) => {
+                      slideRefs.current[index] = el;
+                    }}
+                    className="slide absolute top-0 left-0 right-0 mx-auto w-40 sm:w-48 md:w-64 h-[250px] sm:h-[280px] md:h-[350px] cursor-pointer transition-shadow duration-300 bg-white rounded-lg shadow-lg overflow-hidden"
+                    onClick={() => goToSlide(index)}
+                    style={{
+                      transform: `translateX(${
+                        position *
+                        (isMobile ? mobileSpacing + mobileGap : 250 + gap)
+                      }px) translateY(${initialY}px) rotate(${initialRotation}deg)`,
+                      opacity: index === activeIndex ? 1 : 0.7,
+                      zIndex: 10 - Math.abs(position),
+                      transformOrigin: "center center",
+                    }}
+                  >
+                    <img
+                      src={slide.image}
+                      alt={slide.title}
+                      className="w-full h-48 md:h-64 object-cover"
+                    />
+                    <div className="p-2 md:p-4 text-center">
+                      <h3 className="text-sm md:text-base font-medium text-gray-800">
+                        {slide.title}
+                      </h3>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })()}
       </div>
     </div>
   );

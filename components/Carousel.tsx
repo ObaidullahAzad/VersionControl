@@ -155,9 +155,8 @@ const Carousel: React.FC<CarouselProps> = ({
 
   return (
     <div
-      className={`w-full py-8 md:py-16 relative ${
-        isMobile ? "overflow-hidden" : ""
-      }`}
+      className="w-full py-8 md:py-16 relative 
+        overflow-hidden md:overflow-visible"
     >
       <div
         ref={carouselRef}

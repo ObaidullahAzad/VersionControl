@@ -77,7 +77,7 @@ const Carousel: React.FC<CarouselProps> = ({
       const zIndex = 10 - Math.abs(position);
 
       // Calculate opacity - active slide is fully opaque, others slightly transparent
-      const opacity = position === 0 ? 1 : 0.7;
+      const opacity = position === 0 ? 1 : 1;
 
       // Scale - active slide is 100%, others slightly smaller
       const scale = position === 0 ? 1 : 0.9;
@@ -168,7 +168,7 @@ const Carousel: React.FC<CarouselProps> = ({
         {/* Navigation controls - responsive for mobile */}
         <button
           onClick={goToPrevSlide}
-          className="absolute left-1 md:left-4 top-1/2 -translate-y-1/2 z-20 px-2 py-2 md:px-5 md:py-5 bg-orange-100 text-2xl text-black rounded-full hover:bg-blue-700 transition-colors opacity-70 hover:opacity-80 shadow-[rgba(0,_0,_0,_0.24)_0px_3px_8px]"
+          className="absolute left-1 md:left-4 top-1/2 -translate-y-1/2 z-20 px-2 py-2 md:px-5 md:py-5 bg-orange-100 text-2xl text-black rounded-full hover:bg-orange-200 transition-colors opacity-70 hover:opacity-80 shadow-[rgba(0,_0,_0,_0.24)_0px_3px_8px]"
           aria-label="Previous slide"
         >
           <FaLessThan />
@@ -176,7 +176,7 @@ const Carousel: React.FC<CarouselProps> = ({
 
         <button
           onClick={goToNextSlide}
-          className="absolute right-1 md:right-4 top-1/2 -translate-y-1/2 z-20 px-2 py-2 md:px-5 md:py-5 bg-orange-100 text-2xl text-black rounded-full hover:bg-blue-700 transition-colors opacity-70 hover:opacity-80 shadow-[rgba(0,_0,_0,_0.24)_0px_3px_8px]"
+          className="absolute right-1 md:right-4 top-1/2 -translate-y-1/2 z-20 px-2 py-2 md:px-5 md:py-5 bg-orange-100 text-2xl text-black rounded-full hover:bg-orange-200 transition-colors opacity-70 hover:opacity-80 shadow-[rgba(0,_0,_0,_0.24)_0px_3px_8px]"
           aria-label="Next slide"
         >
           <FaGreaterThan />
@@ -219,7 +219,7 @@ const Carousel: React.FC<CarouselProps> = ({
                     ref={(el) => {
                       slideRefs.current[index] = el;
                     }}
-                    className="slide absolute top-0 left-0 right-0 mx-auto w-40 sm:w-48 md:w-64 h-[250px] sm:h-[280px] md:h-[350px] cursor-pointer transition-shadow duration-300 bg-white rounded-lg shadow-lg overflow-hidden"
+                    className="slide absolute top-0 left-0 right-0 mx-auto w-40 sm:w-48 md:w-64 h-[250px] sm:h-[280px] md:h-[370px] cursor-pointer transition-shadow duration-300 bg-white rounded-lg shadow-lg overflow-hidden"
                     onClick={() => goToSlide(index)}
                     style={{
                       transform: `translateX(${
@@ -234,10 +234,10 @@ const Carousel: React.FC<CarouselProps> = ({
                     <img
                       src={slide.image}
                       alt={slide.title}
-                      className="w-full h-48 md:h-64 object-cover"
+                      className="w-full h-full object-cover"
                     />
-                    <div className="p-2 md:p-4 text-center">
-                      <h3 className="text-sm md:text-base font-medium text-gray-800">
+                    <div className="absolute inset-x-0 bottom-4 pl-5">
+                      <h3 className="text-3xl font-italiana-sm md:text-4xl font-medium  text-white drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]">
                         {slide.title}
                       </h3>
                     </div>

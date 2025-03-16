@@ -104,12 +104,16 @@ const Carousel: React.FC<CarouselProps> = ({
       }
 
       // Calculate initial positioning - responsive
-      const initialY =
-        position *
-        (isMobile ? 10 : 20) *
-        (position < 0 || position > 0 ? 1 : 0);
-      const initialRotation =
-        position * (isMobile ? 3 : 5) * (position < 0 || position > 0 ? 1 : 0);
+      // let initialY = 0;
+      // let initialRotation = 0;
+
+      // if (position < 0) {
+      //   initialY = position * (isMobile ? 10 : 20);
+      //   initialRotation = position * (isMobile ? 3 : 5);
+      // } else if (position > 0) {
+      //   initialY = position * (isMobile ? 10 : 20);
+      //   initialRotation = position * (isMobile ? 3 : 5);
+      // }
 
       // Animate the slide to its new position
       gsap.to(slide, {

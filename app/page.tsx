@@ -50,9 +50,9 @@ const Home: NextPage = () => {
       </Head>
 
       <main className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold text-center mb-8">
+        {/* <h1 className="text-3xl font-bold text-center mb-8">
           Staggered Rotating Carousel
-        </h1>
+        </h1> */}
         <Carousel
           slides={carouselSlides}
           gap={20}

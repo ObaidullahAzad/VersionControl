@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { FaGreaterThan } from "react-icons/fa";
 import { FaLessThan } from "react-icons/fa";
+import { Italiana } from "next/font/google";
 
 interface CarouselProps {
   slides: {
@@ -14,7 +15,11 @@ interface CarouselProps {
   gap?: number;
   initialActiveIndex?: number;
 }
-
+const itali = Italiana({
+  subsets: ["latin"],
+  weight: "400",
+  display: "swap",
+});
 const Carousel: React.FC<CarouselProps> = ({
   slides,
   gap = 40,
@@ -233,10 +238,12 @@ const Carousel: React.FC<CarouselProps> = ({
                     <img
                       src={slide.image}
                       alt={slide.title}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover border-3"
                     />
-                    <div className="absolute inset-x-0 bottom-4 pl-5">
-                      <h3 className="text-3xl font-italiana-sm md:text-4xl font-medium  text-white drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]">
+                    <div
+                      className={`absolute inset-x-0 bottom-4 pl-5 ${itali.className}`}
+                    >
+                      <h3 className="text-3xl md:text-4xl font-medium  text-white drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]">
                         {slide.title}
                       </h3>
                     </div>
